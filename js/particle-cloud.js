@@ -1,24 +1,22 @@
 // Volumetric particle cloud — Vesper/getlayers.ai style
-// 3D particle mesh that morphs between SCMs and responds to mouse presence.
-// All variable names are explicit to avoid JS shadowing errors.
+// Built on Three.js built-in PointsMaterial + vertex colors. No custom shader.
 
 import * as THREE from 'https://esm.sh/three@0.160.0';
 
-const PARTICLE_COUNT = 12000;
+const PARTICLE_COUNT = 14000;
 
 // Mulberry32 PRNG for deterministic positions
 function mulberry32(seedValue) {
-  let state = seedValue | 0;
+  let s = seedValue | 0;
   return function() {
-    state = (state + 0x6D2B79F5) | 0;
-    let temp = Math.imul(state ^ (state >>> 15), state | 1);
-    temp ^= temp + Math.imul(temp ^ (temp >>> 7), temp | 61);
-    return ((temp ^ (temp >>> 14)) >>> 0) / 4294967296;
+    s = (s + 0x6D2B79F5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), s | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
 
-// Parametric surface — torus
-function torusPoint(uParam, vParam, R = 2.0, r = 0.85) {
+function torusPoint(uParam, vParam, R = 2.2, r = 0.95) {
   const theta = uParam * Math.PI * 2;
   const phi = vParam * Math.PI * 2;
   return [
@@ -28,7 +26,6 @@ function torusPoint(uParam, vParam, R = 2.0, r = 0.85) {
   ];
 }
 
-// Distribute variables around the torus using golden-angle distribution
 function distributeVars(variables) {
   const N = variables.length;
   return variables.map((variable, index) => {
@@ -39,32 +36,42 @@ function distributeVars(variables) {
   });
 }
 
-// Build particle positions for a given SCM (variable nodes + edge flow)
-function buildSCMCloud(scm, seedValue) {
+// Bright colors for visibility against dark bg
+const COLOR_EMBER = new THREE.Color('#f29e5c').convertSRGBToLinear();
+const COLOR_LEAF = new THREE.Color('#7bebcc').convertSRGBToLinear();
+const COLOR_SLATE = new THREE.Color('#a8b0cc').convertSRGBToLinear();
+
+function pickToneColor(toneIdx) {
+  if (toneIdx > 0.66) return COLOR_LEAF;
+  if (toneIdx < 0.33) return COLOR_EMBER;
+  return COLOR_SLATE;
+}
+
+function buildSCMCloud(params, seedValue) {
   const rng = mulberry32(seedValue);
   const positions = new Float32Array(PARTICLE_COUNT * 3);
-  const tones = new Float32Array(PARTICLE_COUNT);
-  const flowIndex = new Float32Array(PARTICLE_COUNT);
+  const colors = new Float32Array(PARTICLE_COUNT * 3);
+  const sizes = new Float32Array(PARTICLE_COUNT);
 
-  const variables = scm.parameters.vars;
-  const edges = scm.parameters.edges;
+  const variables = params.vars;
+  const edges = params.edges;
   const N = variables.length;
 
-  // Node particles (bright concentrated hubs) — 8% of total
-  const nodeCount = Math.floor(PARTICLE_COUNT * 0.08);
+  const nodeCount = Math.floor(PARTICLE_COUNT * 0.10);
   for (let i = 0; i < nodeCount; i++) {
     const node = variables[i % N];
-    const point = torusPoint(node.u, node.v);
-    const jitter = 0.06;
+    const pt = torusPoint(node.u, node.v);
     const idx = i * 3;
-    positions[idx]   = point[0] + (rng() - 0.5) * jitter;
-    positions[idx+1] = point[1] + (rng() - 0.5) * jitter;
-    positions[idx+2] = point[2] + (rng() - 0.5) * jitter;
-    tones[i] = node.toneIdx;
-    flowIndex[i] = -1;
+    positions[idx]   = pt[0] + (rng() - 0.5) * 0.08;
+    positions[idx+1] = pt[1] + (rng() - 0.5) * 0.08;
+    positions[idx+2] = pt[2] + (rng() - 0.5) * 0.08;
+    const c = pickToneColor(node.toneIdx);
+    colors[idx]   = c.r;
+    colors[idx+1] = c.g;
+    colors[idx+2] = c.b;
+    sizes[i] = 2.8 + rng() * 0.6;  // big hub particles
   }
 
-  // Flow particles along edges
   const flowCount = PARTICLE_COUNT - nodeCount;
   for (let i = 0; i < flowCount; i++) {
     const edge = edges[i % edges.length];
@@ -73,165 +80,69 @@ function buildSCMCloud(scm, seedValue) {
     if (!fromVar || !toVar) continue;
     const progress = rng();
     const uMix = fromVar.u * (1 - progress) + toVar.u * progress;
-    const pointA = torusPoint(uMix, fromVar.v);
-    const pointB = torusPoint(uMix, toVar.v);
+    const ptA = torusPoint(uMix, fromVar.v);
+    const ptB = torusPoint(uMix, toVar.v);
     const tMix = rng();
-    const baseX = pointA[0] * (1 - tMix) + pointB[0] * tMix;
-    const baseY = pointA[1] * (1 - tMix) + pointB[1] * tMix;
-    const baseZ = pointA[2] * (1 - tMix) + pointB[2] * tMix;
-    // Radial breathing offset
-    const radialOffset = (rng() - 0.5) * 0.18;
-    const len2D = Math.sqrt(baseX * baseX + baseY * baseY) || 1;
-    const ux = baseX / len2D;
-    const uy = baseY / len2D;
+    const baseX = ptA[0] * (1 - tMix) + ptB[0] * tMix;
+    const baseY = ptA[1] * (1 - tMix) + ptB[1] * tMix;
+    const baseZ = ptA[2] * (1 - tMix) + ptB[2] * tMix;
     const idx = (nodeCount + i) * 3;
-    positions[idx]   = baseX + ux * radialOffset;
-    positions[idx+1] = baseY + uy * radialOffset;
-    positions[idx+2] = baseZ + (rng() - 0.5) * 0.15;
-    // Tone is blend of from→to
-    tones[nodeCount + i] = (fromVar.toneIdx + toVar.toneIdx) / 2;
-    flowIndex[nodeCount + i] = i % edges.length;
+    positions[idx]   = baseX + (rng() - 0.5) * 0.2;
+    positions[idx+1] = baseY + (rng() - 0.5) * 0.2;
+    positions[idx+2] = baseZ + (rng() - 0.5) * 0.18;
+    const c1 = pickToneColor(fromVar.toneIdx);
+    const c2 = pickToneColor(toVar.toneIdx);
+    colors[idx]   = (c1.r + c2.r) * 0.5;
+    colors[idx+1] = (c1.g + c2.g) * 0.5;
+    colors[idx+2] = (c1.b + c2.b) * 0.5;
+    sizes[nodeCount + i] = 1.8 + rng() * 0.8;  // smaller flow particles
   }
 
-  return { positions, tones, flowIndex };
+  return { positions, colors, sizes };
 }
-
-// Vertex shader
-const vertexShader = `
-attribute float tone;
-attribute float flowIndex;
-attribute vec3 positionB;
-
-uniform float uTime;
-uniform float uMorph;
-uniform float uBreath;
-uniform vec2 uMouse;
-uniform float uPointerActive;
-
-varying float vTone;
-varying float vDepth;
-varying float vFlow;
-
-void main() {
-  vec3 pos = mix(position, positionB, uMorph);
-
-  // Breathing (radial pulse)
-  float breath = sin(uTime * 0.6) * uBreath * 0.08;
-  vec3 radial = normalize(pos + vec3(0.001));
-  pos += radial * breath;
-
-  // Mouse pull
-  if (uPointerActive > 0.5) {
-    float dist = length(pos.xy - uMouse * 3.0);
-    float pull = smoothstep(4.0, 0.0, dist) * 0.15;
-    vec3 toMouse = vec3(uMouse.x * 4.0, uMouse.y * 3.0, 0.5) - pos * 0.1;
-    pos += normalize(toMouse + vec3(0.01)) * pull;
-  }
-
-  // Flow particles oscillate along radial axis
-  if (flowIndex >= 0.0) {
-    float phase = flowIndex * 1.7;
-    float along = sin(uTime * 0.7 + phase) * 0.04;
-    pos += radial * along;
-  }
-
-  vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-  gl_Position = projectionMatrix * mvPosition;
-
-  // Larger particles, especially ember ones
-  gl_PointSize = (420.0 / -mvPosition.z) * (0.75 + tone * 0.5);
-  gl_PointSize = clamp(gl_PointSize, 2.0, 14.0);
-
-  vTone = tone;
-  vDepth = -mvPosition.z;
-  vFlow = flowIndex;
-}
-`;
-
-const fragmentShader = `
-uniform float uTime;
-varying float vTone;
-varying float vDepth;
-varying float vFlow;
-
-void main() {
-  vec2 c = gl_PointCoord - vec2(0.5);
-  float dist = length(c);
-  if (dist > 0.5) discard;
-
-  float diskCore = smoothstep(0.5, 0.0, dist);
-  float diskHalo = smoothstep(0.5, 0.18, dist);
-
-  // 3 tones — ember, leaf, neutral (brighter for visibility on dark bg)
-  vec3 ember  = vec3(1.0,  0.65, 0.38);  // brighter orange
-  vec3 leaf   = vec3(0.62, 1.0,  0.86);  // brighter mint
-  vec3 slate  = vec3(0.85, 0.88, 0.95);  // brighter slate
-  vec3 color;
-  if (vTone > 0.66) color = leaf;
-  else if (vTone < 0.33) color = ember;
-  else color = mix(slate, ember, 0.4);
-
-  // Depth fade — explicit non-flipped smoothstep
-  float depthFade = 1.0 - smoothstep(6.0, 20.0, vDepth);
-  depthFade = max(depthFade, 0.35); // never fully invisible
-
-  float alpha = diskCore * depthFade;
-  alpha = max(alpha, diskHalo * depthFade * 0.5);
-
-  // Flow particles pulse
-  float pulse = 0.75 + 0.25 * sin(uTime * 1.4 + vFlow * 0.9);
-  if (vFlow >= 0.0) alpha *= pulse;
-
-  gl_FragColor = vec4(color, alpha);
-}
-`;
 
 export class ParticleCloud {
   constructor(canvasElement, containerElement) {
     this.canvasElement = canvasElement;
     this.containerElement = containerElement;
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.Fog(0x0a0b0f, 12, 28);
 
     const rect = containerElement.getBoundingClientRect();
     this.camera = new THREE.PerspectiveCamera(50, rect.width / rect.height, 0.1, 100);
-    this.camera.position.set(0, 0, 7);
+    this.camera.position.set(0, 0, 6.5);
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: canvasElement,
       antialias: true,
-      alpha: false,
+      alpha: true,
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setSize(rect.width, rect.height, false);
-    this.renderer.setClearColor(0x0a0b0f, 1);
+    this.renderer.setClearColor(0x0a0b0f, 0);  // transparent so page bg shows through
 
-    this.uniforms = {
-      uTime: { value: 0 },
-      uMorph: { value: 0 },
-      uBreath: { value: 1.0 },
-      uMouse: { value: new THREE.Vector2(0, 0) },
-      uPointerActive: { value: 0 },
-    };
-
+    // Geometry: positions + colors + sizes
     this.geometry = new THREE.BufferGeometry();
     this.positionsA = new Float32Array(PARTICLE_COUNT * 3);
     this.positionsB = new Float32Array(PARTICLE_COUNT * 3);
-    this.tones = new Float32Array(PARTICLE_COUNT);
-    this.flowIndex = new Float32Array(PARTICLE_COUNT);
+    this.colorsA = new Float32Array(PARTICLE_COUNT * 3);
+    this.colorsB = new Float32Array(PARTICLE_COUNT * 3);
+    this.sizesA = new Float32Array(PARTICLE_COUNT);
+    this.sizesB = new Float32Array(PARTICLE_COUNT);
 
     this.geometry.setAttribute('position', new THREE.BufferAttribute(this.positionsA, 3));
-    this.geometry.setAttribute('positionB', new THREE.BufferAttribute(this.positionsB, 3));
-    this.geometry.setAttribute('tone', new THREE.BufferAttribute(this.tones, 1));
-    this.geometry.setAttribute('flowIndex', new THREE.BufferAttribute(this.flowIndex, 1));
+    this.geometry.setAttribute('color', new THREE.BufferAttribute(this.colorsA, 3));
+    this.geometry.setAttribute('size', new THREE.BufferAttribute(this.sizesA, 1));
 
-    this.material = new THREE.ShaderMaterial({
-      uniforms: this.uniforms,
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
+    // Material: built-in PointsMaterial with vertexColors + additive
+    this.material = new THREE.PointsMaterial({
+      size: 0.08,                    // base point size
+      vertexColors: true,             // use color attribute
+      sizeAttenuation: true,          // perspective scaling
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
+      map: this._createSpriteTexture(),
+      alphaTest: 0.01,
     });
 
     this.points = new THREE.Points(this.geometry, this.material);
@@ -239,14 +150,29 @@ export class ParticleCloud {
 
     this.mouseVec = new THREE.Vector2(0, 0);
     this.targetMouse = new THREE.Vector2(0, 0);
-    this.pointerActive = false;
-    this.pointerTimer = 0;
     this._morphTarget = 0;
+    this._pointerActive = false;
+    this._pointerTimer = 0;
 
     this._setupPointer();
     this._animate();
-
     window.addEventListener('resize', () => this._resize());
+  }
+
+  _createSpriteTexture() {
+    // Soft circular sprite for nice glow
+    const c = document.createElement('canvas');
+    c.width = 64; c.height = 64;
+    const ctx = c.getContext('2d');
+    const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, 'rgba(255,255,255,1.0)');
+    grad.addColorStop(0.3, 'rgba(255,255,255,0.6)');
+    grad.addColorStop(1, 'rgba(255,255,255,0.0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 64, 64);
+    const tex = new THREE.CanvasTexture(c);
+    tex.minFilter = THREE.LinearFilter;
+    return tex;
   }
 
   _setupPointer() {
@@ -254,85 +180,95 @@ export class ParticleCloud {
       const r = this.containerElement.getBoundingClientRect();
       this.targetMouse.x = ((e.clientX - r.left) / r.width - 0.5) * 2;
       this.targetMouse.y = -((e.clientY - r.top) / r.height - 0.5) * 2;
-      this.pointerActive = true;
-      this.pointerTimer = 2.5;
+      this._pointerActive = true;
+      this._pointerTimer = 2.5;
     };
     this.containerElement.addEventListener('mousemove', onMove);
     this.containerElement.addEventListener('touchmove', (e) => {
       const t = e.touches[0];
       onMove({ clientX: t.clientX, clientY: t.clientY });
     }, { passive: true });
-    this.containerElement.addEventListener('mouseleave', () => { this.pointerActive = false; });
+    this.containerElement.addEventListener('mouseleave', () => { this._pointerActive = false; });
   }
 
   _prepareParams(template) {
-    const vars = distributeVars(template.vars);
-    const edges = template.edges.map(e => ({ from: e.from, to: e.to }));
-    return { vars, edges };
+    return {
+      vars: distributeVars(template.vars),
+      edges: template.edges.map(e => ({ from: e.from, to: e.to })),
+    };
   }
 
   _seedFor(templateId, side) {
-    let hash = 0;
-    for (let i = 0; i < templateId.length; i++) hash = (hash * 31 + templateId.charCodeAt(i)) | 0;
-    return Math.abs(hash) + (side === 'A' ? 1000 : 5000);
+    let h = 0;
+    for (let i = 0; i < templateId.length; i++) h = (h * 31 + templateId.charCodeAt(i)) | 0;
+    return Math.abs(h) + (side === 'A' ? 1000 : 5000);
   }
 
   setTemplateA(template) {
     const params = this._prepareParams(template);
-    const built = buildSCMCloud({ parameters: params }, this._seedFor(template.id, 'A'));
+    const built = buildSCMCloud(params, this._seedFor(template.id, 'A'));
     this.positionsA.set(built.positions);
-    this.tones.set(built.tones);
-    this.flowIndex.set(built.flowIndex);
+    this.colorsA.set(built.colors);
+    this.sizesA.set(built.sizes);
     this.geometry.attributes.position.needsUpdate = true;
-    this.geometry.attributes.tone.needsUpdate = true;
-    this.geometry.attributes.flowIndex.needsUpdate = true;
+    this.geometry.attributes.color.needsUpdate = true;
+    this.geometry.attributes.size.needsUpdate = true;
   }
 
   setTemplateB(template) {
     const params = this._prepareParams(template);
-    const built = buildSCMCloud({ parameters: params }, this._seedFor(template.id, 'B'));
+    const built = buildSCMCloud(params, this._seedFor(template.id, 'B'));
     this.positionsB.set(built.positions);
-    this.geometry.attributes.positionB.needsUpdate = true;
+    this.colorsB.set(built.colors);
+    this.sizesB.set(built.sizes);
   }
 
   morphTo(template, duration = 1.6) {
     this.setTemplateB(template);
-    this.uniforms.uMorph.value = 0;
     this._morphTarget = 1;
-    setTimeout(() => {
-      const tmp = this.positionsA;
-      this.positionsA.set(this.positionsB);
-      this.positionsB.set(tmp);
+    const morphStart = performance.now();
+    const morphDuration = duration * 1000;
+    const animateMorph = () => {
+      const t = (performance.now() - morphStart) / morphDuration;
+      if (t >= 1) {
+        // swap A↔B
+        const tp = this.positionsA; this.positionsA = this.positionsB; this.positionsB = tp;
+        const tc = this.colorsA; this.colorsA = this.colorsB; this.colorsB = tc;
+        const ts = this.sizesA; this.sizesA = this.sizesB; this.sizesB = ts;
+        this.geometry.setAttribute('position', new THREE.BufferAttribute(this.positionsA, 3));
+        this.geometry.setAttribute('color', new THREE.BufferAttribute(this.colorsA, 3));
+        this.geometry.setAttribute('size', new THREE.BufferAttribute(this.sizesA, 1));
+        this.geometry.attributes.position.needsUpdate = true;
+        this.geometry.attributes.color.needsUpdate = true;
+        this.geometry.attributes.size.needsUpdate = true;
+        this._morphTarget = 0;
+        return;
+      }
+      // Lerp positions and colors during morph
+      for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
+        this.geometry.attributes.position.array[i] =
+          this.positionsA[i] + (this.positionsB[i] - this.positionsA[i]) * t;
+        this.geometry.attributes.color.array[i] =
+          this.colorsA[i] + (this.colorsB[i] - this.colorsA[i]) * t;
+      }
       this.geometry.attributes.position.needsUpdate = true;
-      this.uniforms.uMorph.value = 0;
-      this._morphTarget = 0;
-    }, duration * 1000);
+      this.geometry.attributes.color.needsUpdate = true;
+      requestAnimationFrame(animateMorph);
+    };
+    animateMorph();
   }
 
   _animate() {
     const tick = () => {
       this._raf = requestAnimationFrame(tick);
-      this.uniforms.uTime.value = performance.now() * 0.001;
+      this.uniforms_uTime = (this.uniforms_uTime || 0) + 0.016;
 
       this.mouseVec.lerp(this.targetMouse, 0.05);
-      this.uniforms.uMouse.value.copy(this.mouseVec);
-
-      if (this.pointerActive) {
-        this.pointerTimer -= 0.016;
-        if (this.pointerTimer <= 0) this.pointerActive = false;
-      }
-      this.uniforms.uPointerActive.value = this.pointerActive ? 1 : 0;
-
-      this.uniforms.uMorph.value = THREE.MathUtils.lerp(
-        this.uniforms.uMorph.value,
-        this._morphTarget ?? 0,
-        0.04
-      );
-      this.uniforms.uBreath.value = 0.85 + Math.sin(this.uniforms.uTime.value * 0.4) * 0.15;
 
       // Slow autorotation + mouse parallax
-      this.points.rotation.y = this.uniforms.uTime.value * 0.06 + this.mouseVec.x * 0.12;
-      this.points.rotation.x = Math.sin(this.uniforms.uTime.value * 0.2) * 0.08 + this.mouseVec.y * 0.08;
+      const t = performance.now() * 0.001;
+      this.points.rotation.y = t * 0.06 + this.mouseVec.x * 0.15;
+      this.points.rotation.x = Math.sin(t * 0.2) * 0.08 + this.mouseVec.y * 0.1;
 
       this.renderer.render(this.scene, this.camera);
     };
