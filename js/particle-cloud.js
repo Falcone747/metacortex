@@ -91,9 +91,9 @@ function distributeVars(vars) {
   return vars.map((v, i) => {
     // Spread variables around the torus using golden angle for nice distribution
     const u = ((i + 0.5) / N + i * 0.382) % 1;
-    const v = ((i * 0.618) % 1 + 0.1) % 1;
+    const t = ((i * 0.618) % 1 + 0.1) % 1;
     const toneIdx = v.tone === 'ember' ? 0.0 : v.tone === 'leaf' ? 1.0 : 0.5;
-    return { ...v, u, v, toneIdx };
+    return { ...v, u, t, toneIdx };
   });
 }
 
@@ -143,8 +143,8 @@ void main() {
   gl_Position = projectionMatrix * mv;
 
   // Size attenuation by depth
-  gl_PointSize = (60.0 / -mv.z) * (0.6 + tone * 0.6);
-  gl_PointSize = clamp(gl_PointSize, 1.0, 6.0);
+  gl_PointSize = (380.0 / -mv.z) * (0.7 + tone * 0.6);
+  gl_PointSize = clamp(gl_PointSize, 1.5, 12.0);
 
   vDepth = -mv.z;
   vTone = tone;
@@ -200,7 +200,7 @@ export class ParticleCloud {
 
     const rect = container.getBoundingClientRect();
     this.camera = new THREE.PerspectiveCamera(45, rect.width / rect.height, 0.1, 100);
-    this.camera.position.set(0, 0, 11);
+    this.camera.position.set(0, 0, 7);
 
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
