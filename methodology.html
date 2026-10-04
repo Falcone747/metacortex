@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Methodology — metacortex</title>
+<link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <div class="brand"><div class="glyph"></div>metacortex</div>
+    <nav class="links">
+      <a href="index.html">Home</a>
+      <a href="app.html">App</a>
+      <a href="https://github.com/Falcone747/metacortex" target="_blank">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="method-section" style="padding-top: 64px;">
+  <div class="wrap">
+    <div class="eyebrow" style="display: inline-flex; gap: 8px; align-items: center; padding: 4px 12px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 999px; font-size: 12px; color: var(--accent); margin-bottom: 24px;">Methodology</div>
+    <h1>How a metacortex is built</h1>
+    <p style="color: var(--text-dim); font-size: 17px; max-width: 780px; margin-top: 12px;">A reference architecture for installing causal reasoning inside an enterprise. Built on Pearl's structural causal models, do-calculus, and Meadows' systems thinking.</p>
+  </div>
+</div>
+
+<div class="method-section">
+  <div class="wrap">
+    <h2>1 · The three rungs of causation</h2>
+    <p>Judea Pearl's <em>Ladder of Causation</em> distinguishes three levels of question a system can answer. Most enterprise analytics operates on the first; the metacortex operates on all three.</p>
+    <h3>L1 — Association</h3>
+    <p><span class="code-inline">P(Y | X)</span> — what is observed? Given what I see in X, how does Y change? This is the regime of dashboards, regression, classical ML. Sufficient for prediction, insufficient for decision because confounders systematically distort the read.</p>
+    <h3>L2 — Intervention</h3>
+    <p><span class="code-inline">P(Y | do(X))</span> — what would happen if I acted? If I <em>set</em> X to a specific value, what does Y become? This requires severing the back-door paths that confounders open. A/B testing reaches L2; SCMs reach L2 systematically, including for never-tried values.</p>
+    <h3>L3 — Counterfactual</h3>
+    <p><span class="code-inline">P(Y_x | X', Y')</span> — given what actually happened, what <em>would have happened</em> had X been different? The unique capability of structural causal models, computed via twin networks (Abduction-Action-Prediction). The basis of genuine organisational learning from past decisions.</p>
+    <div class="callout">
+      <p><strong>The trap.</strong> Most enterprise "AI" today is L1 dressed as L2/L3. Predictions dressed as recommendations. Recommendations dressed as decisions. Every system that doesn't explicitly distinguish these three levels is conflating them — and the organisation learns to mistrust data.</p>
+    </div>
+  </div>
+</div>
+
+<div class="method-section">
+  <div class="wrap">
+    <h2>2 · Building a structural causal model</h2>
+    <p>An SCM for a sub-system (e.g. acquisition, operations, HR) is a tuple:</p>
+    <ul>
+      <li><strong>Variables</strong> U ∪ V — exogenous (U) and endogenous (V). The exogenous are uncaused within the model; the endogenous are determined by structural equations.</li>
+      <li><strong>Structural equations</strong> — for each endogenous variable V<sub>i</sub>: V<sub>i</sub> = f<sub>i</sub>(Pa(V<sub>i</sub>), U<sub>i</sub>), where Pa are its parents in the DAG.</li>
+      <li><strong>Acyclicity</strong> — the DAG is a DAG (no cycles). This is what makes the system computable.</li>
+    </ul>
+    <h3>Linear-Gaussian SCMs</h3>
+    <p>For tractability, metacortex uses linear-Gaussian SCMs:</p>
+    <pre>V<sub>i</sub> = β₀ + Σⱼ βⱼ · Paⱼ + ε,   ε ~ N(0, σ)</pre>
+    <p>This is enough to capture the structure of most business sub-systems (with explicit non-linearities handled by bucketing or extensions). Closed-form formulas exist for intervention, and Monte-Carlo sampling makes counterfactuals cheap.</p>
+    <h3>The diagnostic before the model</h3>
+    <p>Before fitting equations, the metacortex performs a 3-step diagnostic of the actual organisation:</p>
+    <ol style="padding-left: 22px; color: var(--text-dim); max-width: 780px; margin-bottom: 16px;">
+      <li style="margin-bottom: 8px;"><strong>Causal Loop Diagram (CLD)</strong> — actors, flows, feedback loops (R vs B), stocks, delays. Output: a CLD.</li>
+      <li style="margin-bottom: 8px;"><strong>Decision map (not the org chart)</strong> — who actually decides what, with what information, under what time constraint. Output: the real decision graph.</li>
+      <li style="margin-bottom: 8px;"><strong>Mental models</strong> — beliefs, dominant metaphors, contradictions across departments. Output: an epistemic inventory.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="method-section">
+  <div class="wrap">
+    <h2>3 · Do-calculus — the engine of L2</h2>
+    <p>Given an SCM, computing <span class="code-inline">P(Y | do(X = x))</span> requires three operations from Pearl's do-calculus:</p>
+    <ol style="padding-left: 22px; color: var(--text-dim); max-width: 780px;">
+      <li style="margin-bottom: 8px;"><strong>Rule 1 (insertion/deletion of observations):</strong> rules for adding or removing variables from a conditioning set.</li>
+      <li style="margin-bottom: 8px;"><strong>Rule 2 (action/observation exchange):</strong> rules for when intervening and observing are equivalent.</li>
+      <li style="margin-bottom: 8px;"><strong>Rule 3 (insertion/deletion of actions):</strong> rules for when intervening can be removed from the formula.</li>
+    </ol>
+    <p>Together, these rules let you mechanically compute the effect of an intervention without ever running the intervention itself.</p>
+    <h3>Intervention = graph mutilation</h3>
+    <p>In a linear-Gaussian SCM, intervening on X is equivalent to:</p>
+    <ol style="padding-left: 22px; color: var(--text-dim); max-width: 780px;">
+      <li style="margin-bottom: 8px;">Remove all incoming edges to X in the DAG.</li>
+      <li style="margin-bottom: 8px;">Set X = x.</li>
+      <li style="margin-bottom: 8px;">Re-evaluate downstream equations.</li>
+    </ol>
+    <p>This is what the metacortex app does when you press "Run do(X)".</p>
+  </div>
+</div>
+
+<div class="method-section">
+  <div class="wrap">
+    <h2>4 · Twin networks — the engine of L3</h2>
+    <p>Counterfactuals use <em>twin networks</em>: two SCMs that share exogenous distributions but diverge in their interventions.</p>
+    <ol style="padding-left: 22px; color: var(--text-dim); max-width: 780px;">
+      <li style="margin-bottom: 8px;"><strong>Abduction</strong> — given the actual observed facts, infer the exogenous noise terms U for each variable.</li>
+      <li style="margin-bottom: 8px;"><strong>Action</strong> — in a twin SCM, override X with the counterfactual value x′.</li>
+      <li style="margin-bottom: 8px;"><strong>Prediction</strong> — using the SAME noise terms U from step 1, evaluate the twin SCM to get the counterfactual outcome Y<sub>x</sub>.</li>
+    </ol>
+    <p>The result: a distribution of "what would have happened" conditioned on the actual world state. This is what enables genuine retrospective learning.</p>
+  </div>
+</div>
+
+<div class="method-section">
+  <div class="wrap">
+    <h2>5 · Complex systems expertise</h2>
+    <p>SCMs are necessary but not sufficient. Real businesses are <em>complex systems</em> with feedback loops, emergent behaviour, and tipping points. metacortex adds three complexity-aware layers:</p>
+    <h3>Feedback loop detection</h3>
+    <p>Every pair of mutually-causal variables in the DAG is annotated as <strong>R</strong> (reinforcing — growth or collapse) or <strong>B</strong> (balancing — equilibrium-seeking). Long-delay R-loops are flagged as "boom-bust risks".</p>
+    <h3>Leverage points (Meadows)</h3>
+    <p>Among all variables in the SCM, those with the highest total causal effect on the target outcome are surfaced as leverage points. The insight isn't always intuitive — sometimes a low-effort intervention on a "minor" variable dominates.</p>
+    <h3>Bottleneck detection</h3>
+    <p>Variables with high out-degree (many downstream effects) are flagged as bottlenecks. Single points of failure that the decision map doesn't make explicit.</p>
+  </div>
+</div>
+
+<div class="method-section">
+  <div class="wrap">
+    <h2>6 · The Bayesian loop — L1 → L3 → update</h2>
+    <p>A metacortex that doesn't learn is just an oracle. The architecture closes the loop:</p>
+    <ol style="padding-left: 22px; color: var(--text-dim); max-width: 780px;">
+      <li style="margin-bottom: 8px;">Every decision taken is logged with its predicted outcome (L2 distribution).</li>
+      <li style="margin-bottom: 8px;">Observed outcomes are matched against predictions (L3).</li>
+      <li style="margin-bottom: 8px;">Residuals feed back as SCM re-estimation via doubly-robust methods.</li>
+      <li style="margin-bottom: 8px;">Drift detection (KS test on residual distributions) flags when the world has changed and the SCM needs human review.</li>
+    </ol>
+    <p>This is <em>double-loop learning</em> (Argyris): the system doesn't just correct errors, it corrects the premises that caused them.</p>
+    <div class="callout warn">
+      <p><strong>What it isn't.</strong> The metacortex is not an oracle. It is a <em>sparring partner</em> for organisational reasoning. The human remains accountable. The system surfaces counterfactuals, the human decides.</p>
+    </div>
+  </div>
+</div>
+
+<div class="method-section">
+  <div class="wrap">
+    <h2>7 · Reference stack</h2>
+    <p>The reference implementation in this repository is intentionally minimal:</p>
+    <ul>
+      <li><strong>js/causal.js</strong> — SCM engine, do-calculus via graph mutilation, twin-network counterfactuals, leverage scoring, bottleneck detection, loop detection.</li>
+      <li><strong>js/render.js</strong> — DAG layout and SVG rendering, no external libs.</li>
+      <li><strong>js/app.js</strong> — interactive app: SCM selection, counterfactual playground, insights.</li>
+      <li><strong>data/examples.json</strong> — three reference SCMs (B2B SaaS acquisition, manufacturing delays, employee retention).</li>
+    </ul>
+    <p>All MIT-style. Production-grade SCM engines can use <code>DoWhy</code> (Python), <code>CausalNex</code>, or <code>EconML</code>. The methodology is the asset; the stack is replaceable.</p>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>metacortex — open methodology, open code.</span>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="app.html">App</a>
+      <a href="https://github.com/Falcone747/metacortex">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>metacortex — Causal reasoning layer for your enterprise</title>
+<meta name="description" content="A causal metacortex: structural causal models, do-calculus, complex systems expertise, double-loop learning. Open methodology and reference implementation." />
+<link rel="stylesheet" href="css/main.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236ee7c7'/%3E%3Ctext x='50' y='65' text-anchor='middle' font-size='52' fill='%230a0d12' font-family='monospace' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <div class="brand">
+      <div class="glyph"></div>
+      metacortex
+    </div>
+    <nav class="links">
+      <a href="#method">Method</a>
+      <a href="#sample">Sample</a>
+      <a href="#arch">Architecture</a>
+      <a href="methodology.html">Docs</a>
+      <a href="app.html" class="cta-btn">Open app →</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">
+      <span style="width:6px;height:6px;background:var(--accent);border-radius:50%;display:inline-block"></span>
+      v0.1 — open methodology & reference implementation
+    </div>
+    <h1>The <span class="em">causal reasoning layer</span> for your enterprise.</h1>
+    <p class="lead">
+      Stop confusing <em>correlation</em> with <em>cause</em>. Stop letting dashboards answer questions only scientists can ask. metacortex is an open, executable framework for building structural causal models of your business, running interventions and counterfactuals, and growing an organization that learns to reason about itself.
+    </p>
+    <div class="ctas">
+      <a class="btn-primary" href="app.html">Launch the interactive app</a>
+      <a class="btn-secondary" href="methodology.html">Read the methodology</a>
+    </div>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <h2>From correlation to causation</h2>
+    <p class="sub">Pearl's Ladder of Causation — three rungs that distinguish what dashboards, A/B tests, and counterfactuals can each answer.</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon">L1</div>
+        <h3>Association — P(Y|X)</h3>
+        <p>What dashboards do. <em>Seeing</em>. Given X, how does Y change? Sufficient for prediction; insufficient for decision because every confounder corrupts the reading.</p>
+      </div>
+      <div class="card">
+        <div class="icon" style="color:var(--accent)">L2</div>
+        <h3>Intervention — P(Y|do(X))</h3>
+        <p>What experiments do. <em>Doing</em>. If we <em>set</em> X, what does Y become? Cuts the back-door confounding paths. The minimum bar for any real business decision.</p>
+      </div>
+      <div class="card">
+        <div class="icon" style="color:var(--info)">L3</div>
+        <h3>Counterfactual — P(Y_x | X', Y')</h3>
+        <p>What retrospection does. <em>Imagining</em>. Given what happened, what <em>would</em> have happened if X had been different? The unique capability of structural causal models. The basis for genuine organisational learning.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sample">
+  <div class="wrap">
+    <h2>Sample SCM — Manufacturing Delays</h2>
+    <p class="sub">A real diagnostic from a B2B manufacturer with 80 employees. The metacortex surfaces a counter-intuitive leverage point: the delay isn't caused by production capacity — it's caused by <em>priority attribution</em>.</p>
+    <div class="scg">
+      <svg id="sample-graph"></svg>
+    </div>
+    <div class="grid-2" style="margin-top: 24px;">
+      <div class="card">
+        <h3>Finding</h3>
+        <p>Simulating do(priority_quality = 0.8) vs status quo yields a 23% reduction in delivery delays with the same capacity. No headcount change.</p>
+      </div>
+      <div class="card">
+        <h3>Method</h3>
+        <p>1,000 Monte Carlo samples per intervention, twin-network counterfactuals, double-robust estimation. All reproducible in the <a href="app.html">app</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="arch">
+  <div class="wrap">
+    <h2>The architecture</h2>
+    <p class="sub">Six layers. Each one observable, testable, replaceable. Open source, deployable on any stack.</p>
+    <div class="arch">
+      <div class="layers">
+        <div class="layer"><span class="num">L6</span><span class="label">Interface</span><span class="desc">Question-answering for decision-makers, calibrated uncertainty, red-teaming.</span></div>
+        <div class="layer"><span class="num">L5</span><span class="label">Bayesian loop</span><span class="desc">Continuous update of SCMs from observed outcomes, doubly-robust estimation, drift detection.</span></div>
+        <div class="layer"><span class="num">L4</span><span class="desc" style="margin-left:16px">Counterfactual engine — "what if we did X?" with full uncertainty propagation.</span></div>
+        <div class="layer"><span class="num">L3</span><span class="label">SCMs</span><span class="desc">Structural causal models per sub-system (acquisition, operations, RH, finance).</span></div>
+        <div class="layer"><span class="num">L2</span><span class="label">Ingestion</span><span class="desc">Multi-modal: transactions, HR, market signals, weak signals. Event-driven.</span></div>
+        <div class="layer"><span class="num">L1</span><span class="label">Data</span><span class="desc">Warehouse + lineage + quality. Auditable, replayable, versioned.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Why now</h2>
+    <p class="sub">The classical business intelligence stack answers L1. Most experimentation stacks reach L2 on isolated A/B tests. Almost no enterprise stack reaches L3 in production — and L3 is where the most valuable decisions live (irreversible ones).</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>The trap</h3>
+        <p>Most enterprise AI today is L1 dressed up as L2/L3. Predictions dressed as recommendations. Recommendations dressed as decisions. Every "AI strategy" that doesn't explicitly distinguish these three levels is conflating them — and the organisation learns to mistrust data.</p>
+      </div>
+      <div class="card">
+        <h3>The leverage</h3>
+        <p>Crossing from L1 to L3 in production is not a tool problem — it's a methodological discipline problem. <em>The tool is small. The discipline is large.</em> metacortex makes the discipline executable: SCMs as code, interventions as reproducible experiments, counterfactuals as deployable artifacts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-band">
+  <div class="wrap">
+    <h2>Stop guessing. Start reasoning.</h2>
+    <p>The metacortex is open source. The methodology is open. The app is live. Bring your business, build the SCM, run the counterfactual.</p>
+    <div class="ctas" style="justify-content:center;">
+      <a class="btn-primary" href="app.html">Launch the app</a>
+      <a class="btn-secondary" href="methodology.html">Methodology</a>
+      <a class="btn-secondary" href="https://github.com/Falcone747/metacortex">GitHub</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>metacortex — open methodology, open code. MIT-style license.</span>
+    <nav>
+      <a href="methodology.html">Methodology</a>
+      <a href="app.html">App</a>
+      <a href="https://github.com/Falcone747/metacortex">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script type="module">
+import { SCM } from './js/causal.js';
+import { renderDAG } from './js/render.js';
+
+fetch('./data/examples.json').then(r => r.json()).then(data => {
+  const scm = new SCM(
+    data.scms.find(s => s.id === 'mfg-delays').name,
+    data.scms.find(s => s.id === 'mfg-delays').vars,
+    data.scms.find(s => s.id === 'mfg-delays').edges,
+    data.scms.find(s => s.id === 'mfg-delays').equations,
+  );
+  const svg = document.getElementById('sample-graph');
+  renderDAG(svg, scm, { onNodeClick: () => {} });
+});
+</script>
+
+</body>
+</html>
