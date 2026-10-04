@@ -1,86 +1,31 @@
 # metacortex
 
-A causal reasoning layer for the enterprise. Open methodology and reference implementation, built on Judea Pearl's structural causal models, do-calculus, and Meadows' systems thinking.
+**Motion instead of chrome.** A living post-interactive layer that turns causal graphs into motion.
 
-**Status:** v0.1 — reference implementation, three example SCMs, fully interactive app.
+The 3D causal graph IS the interface — a volumetric particle cloud (Three.js, ~12 000 particles, custom vertex+fragment shader, additive blending) where each particle is a variable and the edges are causal flow. The cloud breathes, responds to cursor presence, and morphs between SCMs when you switch templates.
 
-## What is this?
-
-metacortex is an executable framework for installing causal reasoning inside an organisation. It answers three questions that classical BI cannot:
-
-1. **Association (L1)** — P(Y | X): what is observed? (dashboards)
-2. **Intervention (L2)** — P(Y | do(X)): what would happen if I acted? (experiments + SCMs)
-3. **Counterfactual (L3)** — P(Y_x | X', Y'): given what actually happened, what would have happened had X been different? (twin networks)
-
-Most business intelligence answers L1. The metacortex answers all three.
-
-## Quick start
+## Run
 
 ```bash
-# Clone
-git clone https://github.com/Falcone747/metacortex.git
-cd metacortex
-
-# Serve (any static server works)
+cd /root/metacortex
 python3 -m http.server 8000
-
-# Open
-open http://localhost:8000
+# → http://localhost:8000
 ```
 
-No build, no dependencies beyond a static file server. Pure HTML / CSS / ES modules.
+## Files
 
-## What's in the box
+- `index.html` — Vesper-style landing: hero, sidebar meta, template switcher, particle cloud
+- `app.html` — interactive app, full-screen cloud with morphing between SCMs
+- `css/vesper.css` — overlay styles
+- `js/particle-cloud.js` — Three.js volumetric particle system with custom shaders
+- `data/scm-templates.json` — 3 reference SCMs (B2B SaaS acquisition, Manufacturing delays, Talent retention)
 
-```
-metacortex/
-├── index.html              # Landing
-├── app.html                # Interactive app
-├── methodology.html        # Full methodology documentation
-├── css/main.css            # Shared styles
-├── js/
-│   ├── causal.js           # SCM engine, do-calculus, twin networks
-│   ├── render.js           # DAG layout and SVG rendering
-│   └── app.js              # Interactive application logic
-└── data/
-    └── examples.json       # Three reference SCMs
-```
+## How the cloud is made
 
-## The example SCMs
-
-1. **Customer Acquisition (B2B SaaS)** — 7 variables, outbound → MQL → SQL → win → ARR.
-2. **Manufacturing Delays (B2B Fabricant)** — 6 variables, the diagnostic that surfaces priority attribution as the dominant lever (not capacity).
-3. **Employee Retention (PME Services)** — 6 variables, the loop between hiring cost and management quality.
-
-## Methodology in 30 seconds
-
-1. **Diagnostic** (3 maps: CLD, decision graph, mental models) — before any code.
-2. **Build the SCM** — variables + structural equations + acyclicity.
-3. **Run interventions** via graph mutilation (L2).
-4. **Run counterfactuals** via twin networks (L3).
-5. **Close the loop** — observed outcomes update coefficients, drift detection flags model obsolescence.
-
-See `methodology.html` for the full version.
-
-## License
-
-MIT-style. Use it, fork it, build on it.
-
-## Status & roadmap
-
-- [x] Reference implementation in vanilla JS
-- [x] Three example SCMs covering acquisition, operations, HR
-- [x] Interactive app with counterfactual playground
-- [x] Loop detection, leverage scoring, bottleneck detection
-- [ ] Non-linear SCMs (bucketing, neural SCMs)
-- [ ] Continuous causal discovery (PC, GES, NOTEARS)
-- [ ] Causal mediation analysis
-- [ ] Multi-SCM federation for cross-department reasoning
-- [ ] Bayesian model averaging over competing SCMs
-
-## Citation
-
-```
-metacortex (2026). A causal reasoning layer for the enterprise.
-https://github.com/Falcone747/metacortex
-```
+- **Particles** are sampled on a parametric torus surface, plus radial jitter
+- Each variable in the SCM is mapped to a "node cluster" at golden-angle-distributed positions (u ∈ [0,1])
+- Edges become **flow particles** that animate along the radial axis via a sinusoidal offset (vertex shader)
+- **Tones**: ember (#ed946d) for problematic variables, leaf (#6ee7c7) for desired outcomes, neutral gray for inputs
+- **Vertex shader** handles: morphing between two SCMs, breathing (radial pulse), mouse-presence pull toward cursor
+- **Fragment shader**: soft circular sprite via `gl_PointCoord`, additive blending, depth fade so distant particles dim out
+- **Morph**: lerp from current particle positions to next SCM's positions over 1.6s

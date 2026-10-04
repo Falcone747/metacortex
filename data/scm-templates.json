@@ -1,0 +1,73 @@
+{
+  "templates": [
+    {
+      "id": "saas-acquisition",
+      "name": "Customer Acquisition",
+      "tag": "B2B · SaaS",
+      "desc": "Outbound → MQL → SQL → Win → ARR",
+      "likeCount": 189,
+      "vars": [
+        {"id": "outbound", "label": "outbound", "tone": "neutral"},
+        {"id": "capacity", "label": "capacity", "tone": "neutral"},
+        {"id": "MQL", "label": "MQL", "tone": "leaf"},
+        {"id": "SQL", "label": "SQL", "tone": "leaf"},
+        {"id": "win_rate", "label": "win rate", "tone": "ember"},
+        {"id": "ARR", "label": "ARR", "tone": "ember"}
+      ],
+      "edges": [
+        {"from": "outbound", "to": "MQL"},
+        {"from": "outbound", "to": "SQL"},
+        {"from": "capacity", "to": "win_rate"},
+        {"from": "MQL", "to": "SQL"},
+        {"from": "SQL", "to": "win_rate"},
+        {"from": "win_rate", "to": "ARR"}
+      ]
+    },
+    {
+      "id": "mfg-delays",
+      "name": "Manufacturing Delays",
+      "tag": "B2B · Fabricant",
+      "desc": "Inflow → capacity → priority → throughput → on-time",
+      "likeCount": 87,
+      "vars": [
+        {"id": "inflow", "label": "inflow", "tone": "neutral"},
+        {"id": "capacity", "label": "capacity", "tone": "neutral"},
+        {"id": "priority", "label": "priority", "tone": "ember"},
+        {"id": "throughput", "label": "throughput", "tone": "leaf"},
+        {"id": "backlog", "label": "backlog", "tone": "ember"},
+        {"id": "on_time", "label": "on-time", "tone": "leaf"}
+      ],
+      "edges": [
+        {"from": "inflow", "to": "backlog"},
+        {"from": "capacity", "to": "throughput"},
+        {"from": "priority", "to": "throughput"},
+        {"from": "throughput", "to": "backlog"},
+        {"from": "backlog", "to": "on_time"},
+        {"from": "priority", "to": "on_time"}
+      ]
+    },
+    {
+      "id": "talent-retention",
+      "name": "Talent Retention",
+      "tag": "Services · RH",
+      "desc": "Compensation × mgmt → engagement → turnover",
+      "likeCount": 142,
+      "vars": [
+        {"id": "comp", "label": "compensation", "tone": "neutral"},
+        {"id": "workload", "label": "workload", "tone": "neutral"},
+        {"id": "mgmt", "label": "management", "tone": "ember"},
+        {"id": "engage", "label": "engagement", "tone": "leaf"},
+        {"id": "turnover", "label": "turnover", "tone": "ember"},
+        {"id": "hire_cost", "label": "hiring cost", "tone": "ember"}
+      ],
+      "edges": [
+        {"from": "comp", "to": "engage"},
+        {"from": "workload", "to": "engage"},
+        {"from": "mgmt", "to": "engage"},
+        {"from": "engage", "to": "turnover"},
+        {"from": "turnover", "to": "hire_cost"},
+        {"from": "hire_cost", "to": "mgmt"}
+      ]
+    }
+  ]
+}

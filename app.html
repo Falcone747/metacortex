@@ -5,135 +5,161 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>metacortex — app</title>
 <meta name="theme-color" content="#0a0b0f" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/premium.css" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23d97757'/%3E%3Ctext x='50' y='65' text-anchor='middle' font-size='52' fill='%230a0b0f' font-family='monospace' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23ed946d'/%3E%3Ctext x='50' y='65' text-anchor='middle' font-size='52' fill='%230a0b0f' font-family='monospace' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/vesper.css" />
 </head>
-<body>
+<body class="app-mode">
 
-<header class="nav">
-  <div class="wrap">
-    <div class="brand"><div class="glyph"></div><span>metacortex</span></div>
-    <nav class="links">
-      <a href="index.html">Home</a>
-      <a href="methodology.html">Methodology</a>
-      <a href="https://github.com/Falcone747/metacortex" target="_blank">GitHub</a>
-    </nav>
-  </div>
-</header>
+<canvas id="scene"></canvas>
 
-<div class="app-toolbar">
-  <div class="title">
-    <span id="scm-title">Loading…</span>
-    <span class="badge" id="scm-domain">—</span>
+<nav class="top-nav">
+  <a class="brand" href="index.html">
+    <span class="glyph"></span>
+    <span>metacortex</span>
+  </a>
+  <div class="nav-right">
+    <a href="index.html">Home</a>
+    <a href="#">Library</a>
+    <a href="#">Docs</a>
+    <a href="#" class="contact">Contact us</a>
   </div>
-  <div class="status">
-    <span class="dot"></span>
-    <span id="status-text">Loading SCMs…</span>
+</nav>
+
+<section class="hero" style="top: 8%;">
+  <h1 id="hero-title">The causal <em class="accent">reasoning</em><br/>layer.</h1>
+  <p class="sub" id="hero-sub">A living post-interactive layer that turns causal graphs into motion. Click any SCM below to morph the cloud.</p>
+  <div class="tags">
+    <span>causal</span>
+    <span>scm</span>
+    <span id="status-tag">3 templates</span>
+    <span>l1→l3</span>
+  </div>
+</section>
+
+<aside class="sidebar">
+  <div class="tier-row">
+    <div class="tier-pill active"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 7v10l8 5 8-5V7l-8-5z" stroke="currentColor" stroke-width="2.5"/></svg>Live</div>
+    <div class="tier-pill">Morphing</div>
+  </div>
+  <h2 id="scm-name">Loading…</h2>
+  <p class="desc" id="scm-desc">—</p>
+  <div class="meta-grid">
+    <div class="tag" id="scm-vars">—</div>
+    <div class="tag" id="scm-edges">—</div>
+    <div class="tag">scm</div>
+    <div class="tag">real-time</div>
+  </div>
+  <div class="actions">
+    <button id="btn-copy">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15V5a2 2 0 012-2h10" stroke="currentColor" stroke-width="2"/></svg>
+      Copy prompt
+    </button>
+    <button id="btn-source">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2"/></svg>
+      Save JSON
+    </button>
+  </div>
+  <div class="stats-row">
+    <button class="icon-btn" id="like-btn" aria-label="Like">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+    <span id="like-count" style="font-family: var(--mono);">418</span>
+    <div style="flex:1"></div>
+    <button class="icon-btn" aria-label="Share">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="2"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+  </div>
+</aside>
+
+<div class="bottom-bar">
+  <div class="template-switcher" id="switcher"></div>
+  <div class="metric">
+    <div class="metric-cell"><div class="v" id="m-path">0</div><div class="lbl">paths evaluated</div></div>
+    <div class="metric-cell"><div class="v" id="m-target">—</div><div class="lbl">outcome</div></div>
   </div>
 </div>
 
-<div class="app-layout">
+<button class="send-cta">
+  <svg class="star" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.5 7.5H22l-6 4.5 2.5 7.5L12 17l-6.5 4.5L8 14 2 12h7.5z"/></svg>
+  Send request
+</button>
 
-  <!-- Left: SCM list -->
-  <aside class="app-sidebar">
-    <div style="padding: 0;">
-      <h2 style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); margin-bottom: 12px;">Models</h2>
-      <div class="scm-list" id="scm-list"></div>
-    </div>
-  </aside>
+<script type="module">
+import { ParticleCloud } from './js/particle-cloud.js';
 
-  <!-- Main: 3D DAG + counterfactual -->
-  <main class="app-main">
+const cloud = new ParticleCloud(document.getElementById('scene'), document.body);
+const r = await fetch('./data/scm-templates.json');
+const { templates } = await r.json();
 
-    <div class="panel">
-      <h2>Causal graph <span class="tag" id="scm-domain-2">—</span></h2>
-      <div class="dag-canvas">
-        <canvas id="dag"></canvas>
-        <div class="controls">
-          <button id="btn-leverage">Highlight leverage</button>
-          <button id="btn-reset">Reset view</button>
-        </div>
-      </div>
-      <p style="font-size: 12px; color: var(--text-faint); margin-top: 12px;">Drag to rotate · scroll to zoom · click a node to inspect</p>
-    </div>
+let currentIdx = 0;
+cloud.setTemplateA(templates[0]);
+cloud.setTemplateB(templates[0]);
 
-    <div class="panel">
-      <h2>Counterfactual playground</h2>
-      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">
-        Pick an outcome (Y), intervene on another variable (X), then run <code>do(X = value)</code>. The metacortex returns the full posterior distribution.
-      </p>
+function renderSwitcher() {
+  const sw = document.getElementById('switcher');
+  sw.innerHTML = '';
+  templates.forEach((t, i) => {
+    const card = document.createElement('button');
+    card.className = 'tpl' + (i === currentIdx ? ' active' : '');
+    card.innerHTML = `<span class="tpl-name">${t.name}</span><span class="tpl-tag">${t.tag}</span>`;
+    card.onclick = () => {
+      if (i === currentIdx) return;
+      currentIdx = i;
+      cloud.morphTo(t, 1.6);
+      const tpl = templates[currentIdx];
+      document.getElementById('scm-name').textContent = tpl.name;
+      document.getElementById('scm-desc').textContent = tpl.desc;
+      document.getElementById('scm-vars').textContent = `${tpl.vars.length} vars`;
+      document.getElementById('scm-edges').textContent = `${tpl.edges.length} edges`;
+      const leafVar = tpl.vars.find(v => v.tone === 'leaf');
+      if (leafVar) document.getElementById('m-target').textContent = leafVar.label;
+      renderSwitcher();
+    };
+    sw.appendChild(card);
+  });
+}
 
-      <div class="cf-controls">
-        <div>
-          <label>Outcome (Y)</label>
-          <select id="cf-outcome"></select>
-        </div>
-        <div>
-          <label>Baseline</label>
-          <input id="cf-baseline" value="—" readonly />
-        </div>
-      </div>
+const t0 = templates[0];
+document.getElementById('scm-name').textContent = t0.name;
+document.getElementById('scm-desc').textContent = t0.desc;
+document.getElementById('scm-vars').textContent = `${t0.vars.length} vars`;
+document.getElementById('scm-edges').textContent = `${t0.edges.length} edges`;
+document.getElementById('status-tag').textContent = `${templates.length} templates`;
+const leaf0 = t0.vars.find(v => v.tone === 'leaf');
+if (leaf0) document.getElementById('m-target').textContent = leaf0.label;
+document.getElementById('m-path').textContent = (templates.reduce((s, t) => s + t.edges.length * 7, 0)).toLocaleString();
+renderSwitcher();
 
-      <div class="cf-controls full">
-        <div>
-          <label>Intervene on (X)</label>
-          <select id="cf-input"></select>
-        </div>
-        <div>
-          <label>Set value</label>
-          <input id="cf-value" type="number" step="0.01" value="0" />
-        </div>
-        <div>
-          <label>Samples</label>
-          <input id="cf-samples" type="number" step="100" value="1000" />
-        </div>
-        <div style="display:flex; align-items:flex-end;">
-          <button class="btn btn-accent" id="btn-run" style="width:100%; padding: 10px 18px;">Run do(X)</button>
-        </div>
-      </div>
+// Like
+let liked = false, lc = 189;
+document.getElementById('like-btn').onclick = () => {
+  liked = !liked;
+  lc += liked ? 1 : -1;
+  document.getElementById('like-btn').classList.toggle('active', liked);
+  document.getElementById('like-count').textContent = lc;
+};
 
-      <div style="margin-top: 20px;">
-        <div class="cf-result" id="cf-result">
-          <div class="cf-stats" id="cf-stats"></div>
-          <div class="cf-hist" id="cf-hist"></div>
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- Right: Insights -->
-  <aside class="app-aside">
-
-    <div class="panel">
-      <h2>Selected node <span class="tag" id="selected-id">—</span></h2>
-      <div id="selected-detail">
-        <p style="font-size: 12px; color: var(--text-faint);">Click a node in the 3D graph to inspect.</p>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Detected loops</h2>
-      <div id="loops-list">
-        <p style="font-size: 12px; color: var(--text-faint);">—</p>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Insights</h2>
-      <div id="insights-list">
-        <p style="font-size: 12px; color: var(--text-faint);">—</p>
-      </div>
-    </div>
-
-  </aside>
-
-</div>
-
-<script type="module" src="js/app.js"></script>
+// Copy + save
+document.getElementById('btn-copy').onclick = async () => {
+  const t = templates[currentIdx];
+  const prompt = `Build a volumetric 3D particle cloud (Three.js) shaped as a torus where ${t.vars.length} variables are mapped to node clusters at golden-angle positions, and ${t.edges.length} causal edges create flow particles between them. Use additive blending, custom vertex shader for breathing, fragment shader for soft glow. Palette: ember (#ed946d), leaf (#6ee7c7), neutral slate.`;
+  try {
+    await navigator.clipboard.writeText(prompt);
+    const btn = document.getElementById('btn-copy');
+    const orig = btn.innerHTML;
+    btn.innerHTML = 'Copied ✓';
+    setTimeout(() => btn.innerHTML = orig, 1200);
+  } catch (e) {}
+};
+document.getElementById('btn-source').onclick = () => {
+  const data = JSON.stringify(templates[currentIdx], null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `metacortex-${templates[currentIdx].id}.json`;
+  a.click();
+};
+</script>
 
 </body>
 </html>

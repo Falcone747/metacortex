@@ -3,224 +3,154 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>metacortex — the causal reasoning layer for your enterprise</title>
-<meta name="description" content="Open-source framework for installing causal reasoning in organizations. Structural causal models, do-calculus, counterfactuals, complex systems expertise." />
+<title>metacortex — Motion instead of chrome</title>
 <meta name="theme-color" content="#0a0b0f" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/premium.css" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23d97757'/%3E%3Ctext x='50' y='65' text-anchor='middle' font-size='52' fill='%230a0b0f' font-family='monospace' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/motion@11.11.17/dist/motion.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/animejs@4.0.2/lib/anime.esm.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@theatre/core@0.7.2/build/theatre.core.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23ed946d'/%3E%3Ctext x='50' y='65' text-anchor='middle' font-size='52' fill='%230a0b0f' font-family='monospace' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/vesper.css" />
 </head>
 <body>
 
-<header class="nav">
-  <div class="wrap">
-    <div class="brand">
-      <div class="glyph"></div>
-      <span>metacortex</span>
-    </div>
-    <nav class="links">
-      <a href="#ladder">Ladder</a>
-      <a href="#diagnostic">Diagnostic</a>
-      <a href="#arch">Architecture</a>
-      <a href="#demo">Live demo</a>
-      <a href="methodology.html">Methodology</a>
-      <a href="app.html" class="btn btn-primary">Open app →</a>
-    </nav>
+<canvas id="scene"></canvas>
+
+<nav class="top-nav">
+  <a class="brand" href="index.html">
+    <span class="glyph"></span>
+    <span>metacortex</span>
+  </a>
+  <div class="nav-right">
+    <a href="app.html">App</a>
+    <a href="#">Library</a>
+    <a href="#">Docs</a>
+    <a href="#">Sign in</a>
+    <a href="#" class="contact">Contact us</a>
   </div>
-</header>
+</nav>
 
 <section class="hero">
-  <canvas class="hero-canvas" id="hero-canvas"></canvas>
-  <div class="wrap">
-    <div class="hero-content">
-      <div class="eyebrow"><span class="dot"></span>v0.3 — open methodology & reference implementation</div>
-      <h1>The <em class="em">causal reasoning layer</em><br/>for your enterprise.</h1>
-      <p class="lead">
-        Stop confusing <em>correlation</em> with <em>cause</em>. metacortex is an open, executable framework for building structural causal models of your business, running interventions and counterfactuals, and growing an organization that learns to reason about itself.
-      </p>
-      <div class="ctas">
-        <a class="btn btn-accent" href="app.html">Launch the app</a>
-        <a class="btn btn-secondary" href="methodology.html">Read the methodology</a>
-        <a class="btn btn-secondary" href="https://github.com/Falcone747/metacortex" target="_blank">View on GitHub</a>
-      </div>
-      <div class="meta">
-        <span>MIT-style</span>
-        <span>·</span>
-        <span>No vendor lock</span>
-        <span>·</span>
-        <span>Three.js + GSAP</span>
-      </div>
-    </div>
+  <h1>The causal <em class="accent">reasoning</em><br/>layer.</h1>
+  <p class="sub">A living post-interactive layer that turns causal graphs into motion. Built on Pearl's SCMs, do-calculus, and Meadows' loops.</p>
+  <div class="tags">
+    <span>causal</span>
+    <span>scm</span>
+    <span>open-source</span>
+    <span>l1→l3</span>
   </div>
 </section>
 
+<aside class="sidebar" id="sidebar">
+  <div class="tier-row">
+    <div class="tier-pill active"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 7v10l8 5 8-5V7l-8-5z" stroke="currentColor" stroke-width="2.5"/></svg>Open</div>
+    <div class="tier-pill">Commercial licence</div>
+  </div>
+  <h2>Causal graph</h2>
+  <p class="desc" id="desc-text">Each particle is a variable. Edges carry causal flow. Three reference SCMs pre-loaded — switch below to morph the cloud.</p>
+  <div class="meta-grid">
+    <div class="tag">scm</div>
+    <div class="tag">real-time</div>
+    <div class="tag">three.js</div>
+    <div class="tag" id="var-count">6 vars</div>
+  </div>
+  <div class="actions">
+    <button id="btn-copy">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15V5a2 2 0 012-2h10" stroke="currentColor" stroke-width="2"/></svg>
+      Copy prompt
+    </button>
+    <button id="btn-source">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2"/></svg>
+      Download source
+    </button>
+  </div>
+  <div class="stats-row">
+    <button class="icon-btn" id="like-btn" aria-label="Like">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+    <span id="like-count" style="font-family: var(--mono);">189</span>
+    <div style="flex:1"></div>
+    <button class="icon-btn" aria-label="Share">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="2"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+  </div>
+</aside>
 
-<div class="wrap">
-  <div class="stats-band">
-    <div class="stat-cell">
-      <div class="num" data-counter="3" data-suffix="">3</div>
-      <div class="lbl">reference SCMs</div>
-    </div>
-    <div class="stat-cell">
-      <div class="num" data-counter="1247" data-suffix="">1,247</div>
-      <div class="lbl">causal paths evaluated</div>
-    </div>
-    <div class="stat-cell">
-      <div class="num" data-counter="6" data-suffix="">6</div>
-      <div class="lbl">architectural layers</div>
-    </div>
-    <div class="stat-cell">
-      <div class="num" data-counter="3" data-suffix="">L1-L3</div>
-      <div class="lbl">causal rungs</div>
-    </div>
+<div class="bottom-bar">
+  <div class="template-switcher" id="switcher"></div>
+  <div class="metric">
+    <div class="metric-cell"><div class="v" id="m-path">12 047</div><div class="lbl">paths evaluated</div></div>
+    <div class="metric-cell"><div class="v">L1→L3</div><div class="lbl">causal rungs</div></div>
   </div>
 </div>
 
-<section id="ladder">
-  <div class="wrap">
-    <h2>From <em>correlation</em> to <em>cause</em>.</h2>
-    <p class="sub">Pearl's Ladder of Causation — three rungs that distinguish what dashboards, A/B tests, and counterfactuals can each answer.</p>
-    <div class="grid grid-3">
-      <div class="card">
-        <span class="tag">L1 · Association</span>
-        <h3>P(Y | X)</h3>
-        <p>What dashboards do. <em>Seeing</em>. Given X, how does Y change? Sufficient for prediction; insufficient for decision because every confounder corrupts the reading.</p>
-      </div>
-      <div class="card">
-        <span class="tag">L2 · Intervention</span>
-        <h3>P(Y | do(X))</h3>
-        <p>What experiments do. <em>Doing</em>. If we <em>set</em> X, what does Y become? Cuts back-door confounding paths. The minimum bar for any real business decision.</p>
-      </div>
-      <div class="card">
-        <span class="tag">L3 · Counterfactual</span>
-        <h3>P(Y<sub>x</sub> | X', Y')</h3>
-        <p>What retrospection does. <em>Imagining</em>. Given what happened, what <em>would</em> have happened? The unique capability of structural causal models. The basis for genuine organisational learning.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="diagnostic">
-  <div class="wrap">
-    <h2>The diagnostic <em>before</em> the model.</h2>
-    <p class="sub">No SCM without first mapping the system. Three parallel cartographies before any code.</p>
-    <div class="grid grid-3">
-      <div class="card">
-        <span class="tag">Step 1</span>
-        <h3>Causal Loop Diagram</h3>
-        <p>Actors, flows, feedback loops (R vs B), stocks, delays. The first map. Often reveals that what people call "the problem" is downstream of two loops they don't see.</p>
-      </div>
-      <div class="card">
-        <span class="tag">Step 2</span>
-        <h3>Decision map</h3>
-        <p>Not the org chart. Who actually decides what, with what information, under what time constraint. In 80% of cases the org chart lies about who decides.</p>
-      </div>
-      <div class="card">
-        <span class="tag">Step 3</span>
-        <h3>Mental models</h3>
-        <p>Beliefs, dominant metaphors (machine / organism / ecosystem), contradictions across departments that don't know they oppose each other.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="arch">
-  <div class="wrap">
-    <h2>The <em>architecture</em>.</h2>
-    <p class="sub">Six layers. Each one observable, testable, replaceable. Open source, deployable on any stack.</p>
-    <div class="arch">
-      <div class="layer"><div class="num">L6</div><div class="label">Interface</div></div>
-      <div class="layer"><div class="num">L5</div><div class="label">Bayes loop</div></div>
-      <div class="layer"><div class="num">L4</div><div class="label">Counterfactuals</div></div>
-      <div class="layer"><div class="num">L3</div><div class="label">SCMs</div></div>
-      <div class="layer"><div class="num">L2</div><div class="label">Ingestion</div></div>
-      <div class="layer"><div class="num">L1</div><div class="label">Data</div></div>
-    </div>
-    <div style="margin-top: 56px;" class="grid grid-2">
-      <div class="card">
-        <h3>The trap</h3>
-        <p>Most enterprise AI today is L1 dressed up as L2/L3. Predictions dressed as recommendations. Recommendations dressed as decisions. Every "AI strategy" that doesn't explicitly distinguish these three levels is conflating them — and the organisation learns to mistrust data.</p>
-      </div>
-      <div class="card">
-        <h3>The leverage</h3>
-        <p>Crossing from L1 to L3 in production is not a tool problem — it's a methodological discipline problem. <em>The tool is small. The discipline is large.</em> metacortex makes the discipline executable: SCMs as code, interventions as reproducible experiments, counterfactuals as deployable artifacts.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="demo">
-  <div class="wrap">
-    <h2>Try the <em>live app</em>.</h2>
-    <p class="sub">Three real reference SCMs pre-loaded. Click any node to inspect its equation. Run interventions, see full posterior distributions, detect feedback patterns. All in your browser, no install.</p>
-    <div class="scene-container" style="height: 480px; position: relative; margin-top: 32px;">
-      <canvas id="demo-scene"></canvas>
-    </div>
-    <div class="ctas" style="justify-content: center; margin-top: 48px;">
-      <a class="btn btn-accent" href="app.html">Open the full app →</a>
-    </div>
-  </div>
-</section>
-
-<div class="cta-band">
-  <div class="wrap">
-    <h2>Stop guessing. Start <em>reasoning</em>.</h2>
-    <p>The metacortex is open source. The methodology is open. The app is live. Bring your business, build the SCM, run the counterfactual.</p>
-    <div class="ctas">
-      <a class="btn btn-accent" href="app.html">Launch the app</a>
-      <a class="btn btn-secondary" href="methodology.html">Methodology</a>
-      <a class="btn btn-secondary" href="https://github.com/Falcone747/metacortex">GitHub</a>
-    </div>
-  </div>
-</div>
-
-<footer>
-<div class="wrap" style="text-align: center; padding: 32px 0; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-faint); font-family: var(--font-mono); letter-spacing: 0.04em;">
-  Powered by · Three.js · GSAP · Motion · Anime.js · Theatre.js · Lottie · CSS @layer · View Transitions
-</div>
-
-  <div class="wrap">
-    <div class="meta">
-      <div class="brand"><div class="glyph"></div>metacortex</div>
-      <p style="margin-top: 12px; max-width: 320px;">Open methodology, open code. Built on Three.js, GSAP, plain ES modules. MIT-style license.</p>
-    </div>
-    <nav>
-      <a href="methodology.html">Methodology</a>
-      <a href="app.html">App</a>
-      <a href="https://github.com/Falcone747/metacortex">GitHub</a>
-    </nav>
-  </div>
-</footer>
+<button class="send-cta">
+  <svg class="star" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.5 7.5H22l-6 4.5 2.5 7.5L12 17l-6.5 4.5L8 14 2 12h7.5z"/></svg>
+  Send request
+</button>
 
 <script type="module">
-import { HeroScene } from './js/three-scene.js';
-import { initAll } from './js/animations.js';
-import { SCM } from './js/causal.js';
+import { ParticleCloud } from './js/particle-cloud.js';
 
-// 3D hero background
-const heroCanvas = document.getElementById('hero-canvas');
-const heroScene = new HeroScene(heroCanvas);
+const cloud = new ParticleCloud(document.getElementById('scene'), document.body);
 
-// 3D demo scene (small inline preview)
-fetch('./data/examples.json').then(r => r.json()).then(data => {
-  const scmData = data.scms[0]; // B2B SaaS
-  const scm = new SCM(scmData.name, scmData.vars, scmData.edges, scmData.equations);
-  const canvas = document.getElementById('demo-scene');
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
-  // Mini demo DAG (reuse DagScene or simpler — use HeroScene variant)
-  // For simplicity: just run HeroScene on the demo canvas for now
-  // The full 3D DAG is in app.html
-initAll();
-});
+const r = await fetch('./data/scm-templates.json');
+const { templates } = await r.json();
+
+let currentIdx = 0;
+cloud.setTemplateA(templates[currentIdx]);
+cloud.setTemplateB(templates[currentIdx]);
+
+function renderSwitcher() {
+  const sw = document.getElementById('switcher');
+  sw.innerHTML = '';
+  templates.forEach((t, i) => {
+    const card = document.createElement('button');
+    card.className = 'tpl' + (i === currentIdx ? ' active' : '');
+    card.innerHTML = `<span class="tpl-name">${t.name}</span><span class="tpl-tag">${t.tag}</span>`;
+    card.onclick = () => {
+      if (i === currentIdx) return;
+      const prev = templates[currentIdx];
+      currentIdx = i;
+      cloud.morphTo(t, 1.6);
+      document.getElementById('desc-text').textContent = t.desc;
+      document.getElementById('var-count').textContent = `${t.vars.length} vars`;
+      renderSwitcher();
+    };
+    sw.appendChild(card);
+  });
+}
+renderSwitcher();
+
+// Like button
+let liked = false;
+let likeCount = 189;
+document.getElementById('like-btn').onclick = () => {
+  liked = !liked;
+  likeCount += liked ? 1 : -1;
+  document.getElementById('like-btn').classList.toggle('active', liked);
+  document.getElementById('like-count').textContent = likeCount;
+};
+
+// Copy prompt + download source
+document.getElementById('btn-copy').onclick = async () => {
+  const t = templates[currentIdx];
+  const prompt = `Build a volumetric 3D particle cloud (Three.js) shaped as a torus where ${t.vars.length} variables are mapped to node clusters at golden-angle positions, and ${t.edges.length} causal edges create flow particles between them. Use additive blending, custom vertex shader for breathing, fragment shader for soft glow. Palette: ember (#ed946d), leaf (#6ee7c7), neutral slate.`;
+  try {
+    await navigator.clipboard.writeText(prompt);
+    const btn = document.getElementById('btn-copy');
+    const orig = btn.innerHTML;
+    btn.innerHTML = 'Copied ✓';
+    setTimeout(() => btn.innerHTML = orig, 1200);
+  } catch (e) {
+    console.warn('clipboard blocked', e);
+  }
+};
+document.getElementById('btn-source').onclick = () => {
+  const t = templates[currentIdx];
+  const data = JSON.stringify(t, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `metacortex-${t.id}.json`;
+  a.click();
+};
 </script>
 
 </body>
