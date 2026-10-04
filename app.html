@@ -4,14 +4,18 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>metacortex — app</title>
-<link rel="stylesheet" href="css/main.css" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%236ee7c7'/%3E%3Ctext x='50' y='65' text-anchor='middle' font-size='52' fill='%230a0d12' font-family='monospace' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E" />
+<meta name="theme-color" content="#0a0b0f" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/premium.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23d97757'/%3E%3Ctext x='50' y='65' text-anchor='middle' font-size='52' fill='%230a0b0f' font-family='monospace' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E" />
 </head>
 <body>
 
 <header class="nav">
   <div class="wrap">
-    <div class="brand"><div class="glyph"></div>metacortex</div>
+    <div class="brand"><div class="glyph"></div><span>metacortex</span></div>
     <nav class="links">
       <a href="index.html">Home</a>
       <a href="methodology.html">Methodology</a>
@@ -20,11 +24,14 @@
   </div>
 </header>
 
-<div class="app-navbar">
-  <h1 id="scm-title">Loading…</h1>
+<div class="app-toolbar">
+  <div class="title">
+    <span id="scm-title">Loading…</span>
+    <span class="badge" id="scm-domain">—</span>
+  </div>
   <div class="status">
     <span class="dot"></span>
-    <span id="status-text">3 SCMs loaded</span>
+    <span id="status-text">Loading SCMs…</span>
   </div>
 </div>
 
@@ -32,35 +39,31 @@
 
   <!-- Left: SCM list -->
   <aside class="app-sidebar">
-    <div class="panel" style="padding: 0; border: none; background: transparent;">
-      <h2 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); margin-bottom: 8px;">Models</h2>
-      <div class="scms" id="scm-list"></div>
-    </div>
-    <div class="panel" style="margin-top: 16px;">
-      <h2>Build a new model</h2>
-      <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 12px;">Start from a JSON manifest or use the API.</p>
-      <button class="btn-secondary" style="width:100%; font-size: 12px;" id="btn-load-sample">Load example JSON</button>
+    <div style="padding: 0;">
+      <h2 style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); margin-bottom: 12px;">Models</h2>
+      <div class="scm-list" id="scm-list"></div>
     </div>
   </aside>
 
-  <!-- Main: DAG + counterfactual -->
+  <!-- Main: 3D DAG + counterfactual -->
   <main class="app-main">
 
     <div class="panel">
-      <h2>Causal graph <span class="tag" id="scm-domain">—</span></h2>
-      <div class="scm-canvas">
-        <svg id="dag"></svg>
+      <h2>Causal graph <span class="tag" id="scm-domain-2">—</span></h2>
+      <div class="dag-canvas">
+        <canvas id="dag"></canvas>
         <div class="controls">
-          <button id="btn-fit">Fit</button>
-          <button id="btn-leverage">Leverage</button>
+          <button id="btn-leverage">Highlight leverage</button>
+          <button id="btn-reset">Reset view</button>
         </div>
       </div>
+      <p style="font-size: 12px; color: var(--text-faint); margin-top: 12px;">Drag to rotate · scroll to zoom · click a node to inspect</p>
     </div>
 
     <div class="panel">
       <h2>Counterfactual playground</h2>
-      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 14px;">
-        Pick a target outcome (the variable you want to know), then run interventions on the system. The metacortex returns the full posterior distribution under <code>do(X=x)</code>.
+      <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">
+        Pick an outcome (Y), intervene on another variable (X), then run <code>do(X = value)</code>. The metacortex returns the full posterior distribution.
       </p>
 
       <div class="cf-controls">
@@ -70,11 +73,11 @@
         </div>
         <div>
           <label>Baseline</label>
-          <input id="cf-baseline" value="—" />
+          <input id="cf-baseline" value="—" readonly />
         </div>
       </div>
 
-      <div class="cf-controls" style="grid-template-columns: 1fr 1fr 1fr;">
+      <div class="cf-controls full">
         <div>
           <label>Intervene on (X)</label>
           <select id="cf-input"></select>
@@ -83,15 +86,19 @@
           <label>Set value</label>
           <input id="cf-value" type="number" step="0.01" value="0" />
         </div>
+        <div>
+          <label>Samples</label>
+          <input id="cf-samples" type="number" step="100" value="1000" />
+        </div>
         <div style="display:flex; align-items:flex-end;">
-          <button class="btn-primary" id="btn-run" style="width:100%;">Run do(X)</button>
+          <button class="btn btn-accent" id="btn-run" style="width:100%; padding: 10px 18px;">Run do(X)</button>
         </div>
       </div>
 
-      <div style="margin-top: 16px;">
-        <div class="cf-dist" id="cf-result">
-          <div class="stats" id="cf-stats"></div>
-          <div class="hist" id="cf-hist" style="margin-top: 12px; display:flex; align-items:flex-end; height:80px; gap:1px;"></div>
+      <div style="margin-top: 20px;">
+        <div class="cf-result" id="cf-result">
+          <div class="cf-stats" id="cf-stats"></div>
+          <div class="cf-hist" id="cf-hist"></div>
         </div>
       </div>
     </div>
@@ -104,20 +111,20 @@
     <div class="panel">
       <h2>Selected node <span class="tag" id="selected-id">—</span></h2>
       <div id="selected-detail">
-        <p style="font-size: 12px; color: var(--text-faint);">Click a node in the graph to inspect.</p>
+        <p style="font-size: 12px; color: var(--text-faint);">Click a node in the 3D graph to inspect.</p>
       </div>
     </div>
 
     <div class="panel">
       <h2>Detected loops</h2>
-      <div class="loops" id="loops-list">
+      <div id="loops-list">
         <p style="font-size: 12px; color: var(--text-faint);">—</p>
       </div>
     </div>
 
     <div class="panel">
       <h2>Insights</h2>
-      <div class="insights" id="insights-list">
+      <div id="insights-list">
         <p style="font-size: 12px; color: var(--text-faint);">—</p>
       </div>
     </div>
