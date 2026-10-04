@@ -162,22 +162,24 @@ void main() {
   float diskCore = smoothstep(0.5, 0.0, dist);
   float diskHalo = smoothstep(0.5, 0.18, dist);
 
-  // 3 tones — ember, leaf, neutral
-  vec3 ember  = vec3(0.95, 0.62, 0.36);   // #f29e5c
-  vec3 leaf   = vec3(0.48, 0.92, 0.80);   // #7bebcc
-  vec3 slate  = vec3(0.66, 0.70, 0.80);   // light slate
+  // 3 tones — ember, leaf, neutral (brighter for visibility on dark bg)
+  vec3 ember  = vec3(1.0,  0.65, 0.38);  // brighter orange
+  vec3 leaf   = vec3(0.62, 1.0,  0.86);  // brighter mint
+  vec3 slate  = vec3(0.85, 0.88, 0.95);  // brighter slate
   vec3 color;
   if (vTone > 0.66) color = leaf;
   else if (vTone < 0.33) color = ember;
   else color = mix(slate, ember, 0.4);
 
-  // Depth fade
-  float depthFade = smoothstep(20.0, 6.0, vDepth);
-  float alpha = diskCore * depthFade * 0.95;
-  alpha += diskHalo * depthFade * 0.22;
+  // Depth fade — explicit non-flipped smoothstep
+  float depthFade = 1.0 - smoothstep(6.0, 20.0, vDepth);
+  depthFade = max(depthFade, 0.35); // never fully invisible
+
+  float alpha = diskCore * depthFade;
+  alpha = max(alpha, diskHalo * depthFade * 0.5);
 
   // Flow particles pulse
-  float pulse = 0.65 + 0.35 * sin(uTime * 1.4 + vFlow * 0.9);
+  float pulse = 0.75 + 0.25 * sin(uTime * 1.4 + vFlow * 0.9);
   if (vFlow >= 0.0) alpha *= pulse;
 
   gl_FragColor = vec4(color, alpha);
